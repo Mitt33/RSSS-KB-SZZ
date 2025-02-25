@@ -1,6 +1,6 @@
 # RSSS-KB-SZZ
 
-zpracované otázy na státnice pro obor Řízení Softwarových Sýstémů a Služeb - Řízení Kyberbezpečnosti jaro 2025
+zpracované otázky ke státnicím pro obor Řízení Softwarových Systémů a Služeb - Řízení Kyberbezpečnosti jaro 2025
 
 (Za správnost nenesou autoři odpovědnost)
 
@@ -12,4 +12,9 @@ zpracované otázy na státnice pro obor Řízení Softwarových Sýstémů a Sl
 - ...
 
 
-  
+## how to render pdf:
+
+
+run
+
+> .\generate_pdfs.ps1
