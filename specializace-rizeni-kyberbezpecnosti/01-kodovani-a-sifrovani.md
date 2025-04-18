@@ -360,3 +360,306 @@ Doporučuju se nejdřív podívat na následující videa:
     - Takhle oba dva vidí, kdy použili stejnou scheme a tím pádem které bity byly změřeny správně.
     - Pokud Eve odposlouchávala a změřila špatně qubit, tak Alice s Bobem zjistí hned při první vyměněné zprávě, jelikož budou mít rozdílný klíč - dobře je to vysvětlené zde: https://youtu.be/44G9UuB2RWI?t=476
 - ![](https://i.imgur.com/W6wzfk4.png)
+
+
+# 02 Symetrické a asymetrické šifry (2hodinky)
+
+###### tags: `řsss-řk`
+
+&gt; Symetrické a asymetrické šifry. Principy symetrických blokových šifrovacích algoritmů (Feistelovy šifry, DES, AES) a asymetrické algoritmy (RSA, Diffie-Hellman, DSA / ElGamal). Faktorizace a testování prvočíselnosti. Principy konstrukce hašovacích funkcí. Kryptosystémy na bázi eliptických křivek. (PV079)
+
+---
+
+## Symetrická kryptografie
+Matematická definice:
+- _(Symmetric) cryptosystem_ je pětice ($P, C, K, E, D$):
+    - $P$: množina všech možných plaintextů (zpráv) nad danou abecedou
+    - $C$: množina všech možných _ciphertextů_ (šifer)
+    - $K$: množina všech možných klíčů
+    - $E$: šifrovací funkce
+    - $D$: je dešifrovací funkce
+- Cíl je poskytnout rychlé šifrování a dešifrování zpráv mezi dvěma účastníky komunikace, kteří sdílí klíč $k$.
+- _(Symmetric) cryptosystem_ by měl splnit následující vlastnosti:
+    - Daným $p\in P$ a $k\in K$, musí být jednoduché vypočítat $c=E(p,k)$
+    - S pouze šifrovaným textem $c\in C$, musí být složité vypočítat $p=D(c,k)$
+    - Musí být jednoduché vygenerovat hodně různých klíčů $k\in K$
+- Šifra je dvojice ($E,D$) z šifrovací a dešifrovací funkce:
+    - $E: P\times K \rightarrow C$
+    - $D: C\times K \rightarrow P$
+    - $D(E(p,k)k)=p$
+    - $E$ a $D$ jsou _one-to-one_ funkce
+
+![](https://i.imgur.com/ceIheox.png)
+Odesílatel a příjemce sdílí stejný šifrovací klíč. Pomocí něho šifrují/dešifrují zaslaný text. Útočník může odposlechnout pouze šifru.
+
+- Kerckhoffsův princip: Šifra musí být bezpečná, i pokud všechny informace o algoritmu jsou veřejné. Jinými slovy, bezpečnost kryptosystému musí záviset pouze na klíči a prozrazení principu šifrování ho nemá ohrozit. (Opak je _security by obscurity_).
+    - Všechny historické šifry (Caeser(shift)-cipher / Enigma) jsou symetrické šifry, které byly primárně založeny na _security by obscurity_. Např. u Caesar šifry nám stačilo znát posunutí a mohli jsme daný text odšifrovat.
+
+#### Blokové šifry
+- Blokové šifry jsou symetrické šifry, které procesují data v blocích o fixní délce bitů.
+    - Např. DES, AES
+
+#### _Stream_ (proudové) šifry
+- _Stream_ šifry jsou symetrické šifry, které procesují data jako _stream_ bitů. Generuje _keystream_ a XORuje s ním plaintext data bit po bitu.
+    - Například One Time Pad
+    - Blokové šifry mohou být změněny na _stream_ šifry použitím různých módů operace (např. CTR nebo OFB)
+
+### Feistelovy šifry
+:::warning
+:movie_camera: [Feistel Cipher - Computerphile](https://www.youtube.com/watch?v=FGhj3CGxl8I)
+:::
+Feistelova síť/šifra je běžný přístup k návrhu blokových a _stream_ čifer (DES, TEA, Blowfish, Twofish, KASUMI)
+Proces:
+1. Text je rozdělen na dvě části - levá a pravá, $L$ a $R$.
+2. V každém kroku:
+    - $R$ vstupuje do funkce $F$ s klíčem $K$ a xoruje se s $L$
+        - Funkce F &#34;_is a round function, a function which takes two inputs – a data block and a subkey – and returns one output of the same size as the data block. - WIKI_&#34;
+    - Prohodíme pravou a levou stranu
+    - Klíče měníme v každém kroku
+
+Šifrování můžeme provést několikrát. Pro dešifrování pouze prohodíme pořadí - viz. diagram.
+
+&lt;img src=&#34;https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Feistel_cipher_diagram_en.svg/1401px-Feistel_cipher_diagram_en.svg.png&#34; alt=&#34;drawing&#34; style=&#34;width:400px;margin-left:auto;margin-right:auto;display:block;&#34;/&gt;
+
+### DES - Data encryption standard
+- Prolomen v roce 1999, v roce 2001 nahrazen AES
+- Délka bloku: 64 bitů
+- Délka klíče: 56 b + 8 paritních bitů (každý byte má paritní bit)
+- Počet kol (_rounds_): 16
+Algoritmus si předpočítá 16 _subklíčů_ o délce 48 bitů z originálního klíče pro každé kolo. Šifrování je pak stejné jako ve Feistelově šifře - prohazujeme levou a pravou stranu.
+
+&lt;img src=&#34;https://forum.huawei.com/enterprise/en/data/attachment/forum/202204/20/210912jpavhaleppxhd4ny.jpg&#34; alt=&#34;drawing&#34; style=&#34;width:400px;margin-left:auto;margin-right:auto;display:block;&#34;/&gt;
+
+#### Triple DES
+Nevýhoda **DES**u je taková, že používá relativně krátký klíč. Z toho důvodu se začal používat **Triple DES**, který provede tři operace na jeden blok dat. Nejběžnější způsob je použití $E_{K3}(D_{K2}(E_{K1}(plaintext)))$. Dešifrování $D_{K2}$ nám umožní zpětnou kompatibilitu (pokud jsou všechny tři klíče stejné) a zlepší bezpečnost, pokud $K_3 = K_1$
+Varianty:
+- Všechny tři klíče jsou nezávislé: 168 b klíč (56b\*3), ale kvůli meet-in-the-middle útoku, je to pouze o trošku bezpečnější, než použití $K_1=K_3$.
+    - Meet-in-the-middle útok - :movie_camera: [Meet-in-the-middle - easy explanation](https://www.youtube.com/watch?v=QTTjJaY5lo8)
+        - Tl;dr Příklad s 2DES - Vezmeme $E_{K1}(p) = X \rightarrow E_{K2}(X) = c$, pro dešifrování potřebujeme vypočítat $D_{K2}(c) = X \rightarrow D_{K1}(X) = p$. Z toho vidíme, že útočník stačí cracknout 2 klíče o délce $2^{56}$.
+- $K_1=K_2$: 112 b klíč, ale jsou známe known chosen-plaintext útoky, které sníží bezpečnost na 80 bitů. Je to bezpečnější než $E(E(p))$, protože chrání před meet-in-the-middle útokem.
+
+### AES
+:::warning
+:movie_camera: [AES explained - Computerphile](https://www.youtube.com/watch?v=O4xNJsjtN6E)
+:::
+- Použití: FIPS standard, HW implementace v Intel CPUs
+- Délka bloku: 128 bitů
+- Délka klíče: 3 varianty: 128, 192 nebo 256 bitů
+- Počet kol (_rounds_): záleží na délce klíče: 10, 12 nebo 14 kol.
+
+AES nepoužívá Feistelovu síť. Jeho stav je reprezentován $4 \times 4$ maticí bytů. $S$-box přidává _confusion_ (=substituce, maskuje pravý obsah). Posouvání v rámci řádku umožňuje $diffusion$ (=transpozice, roztáhnutí bitů zprávy). Jednotlivé fáze jednoho kola:
+1. **SubBytes**: nelineární funkce ($S$-box) transformuje jednotlivé byty do matice
+2. **ShiftRows**: jednotlivé řádky jsou posunuty doleva, první řádek o 0 bytů, druhý řádek o 1 byte, třetí řádek o dva byty, čtvrtý řádek o 3 byty.
+3. **MixColumns**: Každý sloupec je vynásoben _constant_ maticí.
+4. **AddRoundKey**: matice je XORována pomocí _round_ klíče.
+
+
+## Asymetrická kryptografie
+Problém symetrické kryptografie je distribuce klíče - jak přes nezabezpečený kanál pošlu svůj symetrický klíč kamarádovi, který žije na druhé straně zeměkoule? Asymetrická kryptografie řeší tento problém použitím dvojice klíčů: veřejný klíč, který je _veřejný_ a privátní klíč, který je znám pouze majiteli.
+Asymetrická kryptografie má 3 hlavní použítí:
+- šifrování/dešifrování
+- digitální podpisy
+- inicializace sdíleného tajemství
+
+Její nevýhodou ale je pomalejší výpočet a potřeba extensivního key managementu - _public key infrastructure_.
+
+
+### RSA (Rivest, Shamir, Adleman)
+RSA je nejrozšířenější public-key cryptosystem. Je založen na výpočetní náročnosti faktorizace prvočísel. Poprvé publikován v roce 1977, v tuto chvíli je standardizován jako PKCS #1.
+
+Proces:
+1. Alice vygeneruje dvě velká prvočísla $p$ a $q$ a vypočítá $n=pq$.
+    - Alespoň 2048-bit dlouhé $N$ je doporučeno.
+2. Spočítá hodnotu Eulerovy funkce $\varphi(n)=(p-1)(q-1)$
+3. Zvolí celé číslo $e$ menší než $\varphi(n)$, které je s ním nesoudělné - tzn. obě dvě čísla nemají jiného společného dělitele, než je 1.
+    - Malá hodnota $e$ je preferovaná pro rychlé šifrování, nicméně $e=3$ je moc malé a degraduje bezpečnost $\rightarrow$ $2^{16}+1=65537$ je často používané.
+4. Spočítá _modular multiplicative inverse_ $d\equiv e^{-1}\mod \varphi(n)$
+    - Pokud $e$ nebylo nesoudělné k $\varphi(n)$, _inverse_ nebude existovat
+5. Veřejný klíč je dvojice $(n,e)$. Privátní klíč je $d$.
+    - Důvěra ve veřejný klíč může být vyřešena pomocí _chain of trust_ nebo certifikační autoritou.
+6. Šifrování: Bob šifruje jeho zprávu $m$ jako $c \equiv m^e\pmod n$
+7. Dešifrování: Alice dešifruje jeho zprávu jako $c^d\equiv (m^e)^d=m^{ed}=m\pmod n$
+    - Možné to je díky Eulerově teorému
+
+### DSA (Digital Signature Algorithm)
+
+Kromě šifrování umožňuje asymetrická kryptografie taky podepisování. Ve většině případů ale podepisujeme pouze hash zprávy (z výpočetních důvodů - dosáhneme stejného cíle a nemusíme podepisovat obrovské množství dat).
+Požadavky na digitální podpis:
+- Musí záviset na podepisované zprávě
+- Musí používat data, které patří unikátně odesílateli (privátní klíč)
+    - Aby nikdo nemohl podpis zfalšovat
+- Musí být relativně jednoduchý na vytvoření, rozpoznání a verifikaci
+- Musí být výpočetně neproveditelné ho zfalšovat
+
+Digitální podpis poskytuje:
+- Autentizaci odesílatele
+    - Víme, kdo ho odeslal
+- Integritu
+    - Pokud podpis sedí, víme, že zprávu nikdo po cestě neupravoval
+- Non-repudiation (neodmítnutelnost)
+    - Odesílatel nemůže popřít, že vytvořil podpis. Pokud mu tedy nikdo nezcizil soukromý klíč.
+
+Základní schéma:
+- Odesílatel &amp; příjemce.
+- Předpokládáme, že příjemce zná odesílatelův veřejný klíč.
+    - Případně ho odesílatel může zaslat v zasílané zprávě - nicméně pozor na podvody - útočník se může vydávat za někoho jiného.
+- Digitální podpis je vytvořen buď z celé zprávy, nebo jejího hashe - důvody viz. výše.
+- Šifrovat můžeme veřejným klíčem příjemce
+    - Poznámka: Pokud chceme šifrovat i podepisovat, musíme nejdřív zprávu podepsat a až pak zašifrovat - abychom měli jednoznačně spojenou zprávu+podpis.
+
+DSA:
+- Pouze pro podepisování, 320bitový podpis
+- 512-3072 bitová bezpečnost
+    - NIST 800-57 doporučuje používat délku klíče 2048 (nebo 3072) po roce 2010 (a 2030).
+- Menší a rychlejší, než RSA
+- Bezpečnost závisí na složitosti výpočtu diskrétních logaritmů
+
+Schéma:
+![Digital signature scheme](https://www.simplilearn.com/ice9/free_resources_article_thumb/dsa-DSA_Algorithm.PNG)
+
+
+#### ElGamal Signature scheme
+:::warning
+Neplést si ElGamal Signature scheme a ElGamal encryption.
+:::
+
+Na ElGamal signature scheme byl založen DSA.
+
+_As for ElGamal signatures: that scheme is more expensive. ElGamal signatures work modulo a prime p and require one modular exponentiation (for generation) or two (for verification) with exponents as big as p; and the signature is two integers modulo p. This contrasts with DSA and Schnorr, which both work in a subgroup, traditionally a 160-bit subgroup for a 1024-bit modulus. **DSA and Schnorr are 6 times faster than ElGamal, and produce signatures which are 6 times smaller. This difference in performances is enough to explain not choosing ElGamal**. Indeed, the short size of DSA and Schnorr signatures has long been the selling point for these algorithms when compared to RSA. - https://crypto.stackexchange.com/a/10389_
+
+
+### Diffie-Hellman (DH)
+:::danger
+Skipuju matematické vzorce, protože důležitejší mi přijde umět to vysvětlit, než vypočítat.
+inb4 F
+:::
+Diffie-Hellman key exchange je algoritmus, který umožňuje přes nezabezpečený kanál vytvořit mezi komunikujícími stranami šifrované spojení, bez předchozího dohodnutí šifrovacího klíče. Výsledkem tohoto protokolu je vytvoření symetrického šifrovacího klíče, který může být následně použit pro šifrovaní zbytku komunikace.
+_Poznámka: DH není asymetrický krypto algoritmus, DH je použit v asymetrickém krypto algoritmu ElGamal_
+Proces:
+1. Alice se s Bobem dohodne na společné hodnotě (nonce)
+2. Alice i Bob si zvolí privátní hodnotu
+3. K společné hodnotě přidají svou privátní hodnotu a výsledky si vymění
+4. K vyměněným hodnotám znova přidají svou privátní hodnotu a výsledek je _sdílený klíč_.
+
+Výhodou je, že případný útočník odposlouchávající komunikaci tento klíč nezachytí. Klíč je zkonstruován všemi účastníky komunikace a nikdy není poslán v otevřené formě. Nevýhodou tohoto protokolu je bezbrannost proti útoku Man in the middle, protože neumožňuje autentizaci účastníků. Tento protokol bez kombinace s jinými metodami je tedy vhodný pouze tam, kde útočník nemůže aktivně zasahovat do komunikace.
+
+![](https://i.imgur.com/bCLEYiN.png)
+
+### Hybrid encryption
+
+Hybridní šifrování kombinuje symetrickou a asymetrickou kryptografii. Asymetrická kryptografie může být použita pro ustanovení spojení (autentizace účastníků, výměna symetrických klíčů). Jelikož asymetrické algoritmy jsou pomalejší, zbytek komunikace je šifrováno symetrickým klíčem. Tento způsob je využit např. v TLS, PGP (přílohy emailu jsou zašifrovány AES, symetrický klíč je zašifrován veřejným PGP klíčem příjemce).
+
+## Faktorizace a testování prvočíselnosti
+Prvočíslo je takové číslo, které je větší než 1 a má právě dva dělitele (jedničku a sebe samé).
+Prvočísla v kryptografii:
+- Vynásobit dvě prvočísla je jednoduché, ale extrémně pomalé udělat opak, tj. z $x$ získat dvě prvočísla.
+    - Mějme čísla $73\times 79 = 5767$, abychom z $5767$ zjistili, z jakých čísel se skládá, museli bychom vyzkoušet všechny možnosti, nebo použít určitý algoritmus.
+- Kryptografické algoritmy využívají velká prvočísla - stovky číslic, např. RSA-2048 má 617 číslic.
+- V roce 2009 se podařilo faktorizovat RSA-768, které mělo 232 číslic (768 bitů), trvalo jim to 2 roky za použití několika stovek počítačů po celém světě. Na běžném počítači by to trvalo 2000 let.
+
+Jednoduché algoritmy:
+- Zkusmé dělení:
+    - Brute-force, zkoušíme číslo dělit všemi možnými děliteli. Optimalizované varianty zkouší čísla dělit pouze dvojkou a pak lichými čísly, nebo pouze prvočísly menšími než odmocnina testovaného čísla.
+
+Obecné pravděpodobnostní algoritmy:
+- **Fermatův test**
+    - Fermatův test je založen na Malé Fermatově větě, která říka, že pokud $p$ je prvočíslo, $a \in \mathbb{Z}$, tak $a^{p-1}\equiv 1 \pmod p$
+    - Např. $p=5$, $a=2$. Jelikož 5 je prvočíslo a 2 není násobek 5, má podle malé Fermatovy věty platit, že $2^5-2$ je dělitelné 5. Což platí: $2^5-2=32-2=30$ je dělitelné 5.
+    - Nevýhodou tohoto postuju je to, že neodhalí tzv. _Carmichaelova_ čísla. Proto pokud Fermatův test platí, říkáme, že $p$ je _asi_ prvočíslo.
+
+- _Carmichaelovo_ číslo je takové $n \in \mathbb{Z}$, že platí $b^{n-1} \equiv 1 \pmod n$, pro všechna celá čísla $b$ nesoudělná s $n$.
+    - $561=3\times 11 \times 17$
+    - $1105=5\times 13\times 17$
+
+- **Algoritmus Rabin-Miller**
+    - Pravděpodobnostní test prvočíselnosti. Je podobný Fermatovu testu, jelikož je založen na existenci rovností, které jsou splněny pro prvočísla.
+
+## Kryptosystémy na bázi eliptických křivek.
+:::warning
+:movie_camera: [Elliptic Curve Diffie Hellman - dobře vysvětleno](https://www.youtube.com/watch?v=F3zzNa42-tQ)
+:movie_camera: [Elliptic Curve - Computerphile](https://www.youtube.com/watch?v=NF1pwjL9-DE)
+:::
+
+ECC (elliptic curve cryptography) způsob asymetrické kryptografie založený na vlastnostech eliptických křivek. Jeho hlavní výhodou je to, že mnohem menší klíče nám poskytnou stejnou ochranu jako klíče např. RSA. Další výhoda je taková, že hodně útoků založených na faktorizaci a diskrétních logaritmech nefungují na ECC.
+
+Eliptická křivka je dvojice ($E,O$), kde:
+- $E$ je set bodů v rovině daných Weierstrassovou funkcí 
+    - $y^2=x^3+ax+b$
+- kde $a,b\in \mathbb{R}$ jsou taková, že $4a^3+27b^2\neq 0$.
+- $O\in E$ je zvolen jako _&#34;point at infinity&#34;_ na křivce.
+
+![elliptic curves](https://i.imgur.com/9R86u1f.png)
+
+#### Bezpečnost ECC
+:::warning
+:movie_camera: [Elliptic curve discrete log problem](https://www.youtube.com/watch?v=eslSF7GrbSw)
+Mějme eliptickou křivku $E$ a body $A,B$, takové, že $B = kA = (A+\cdots+A)$ - $k$-krát. Bezpečnost ECC je založena na tom, že je velice složité vypočítat $k$.
+
+I když máme startovní bod $G$ a konečný bod $nG$, tak je velice složité zjistit, které číslo je $n$, tzn. počet kroků, kolikrát jsme museli sečíst bod $G$, abychom se dostali do bodu $nG$.
+:::
+
+
+## Principy konstrukce hashovacích funkcí
+Kryptografická hash funkce je mapování $h:\{0,1\}^a\rightarrow\{0,1\}^b$, kde $a,b\in \mathbb{N}$, $a&gt;&gt;b$, $a$ je libovolné a $b$ má fixní délku pro svou funkci (např. 160 bitů pro SHA1).
+Jinými slovy, hash funkce $h$ promítne hodnotu z množiny s hodně (nebo dokonce nekonečno) členy na hodnotu z množiny s pevným počtem (méně) členy.
+- Hash funkce je jednosměrná
+    - Tzn. Ze vstupu dokážeme vypočítat výstup(hash), ale z hashe nedokážeme vypočítat vstup.
+- Výstup hashovací funkce se nazývá hash, _message digest_, _fingerprint_ (otisk).
+
+### Vlastnosti dobré hash funkce
+- _**Deterministická**_: Jeden vstup vyprodukuje vždy stejný výstup
+- _**One-way**_: Z hashe nelze vypočítat vstup. Jedinou možností, jak získat vstup pro daný hash, je zkoušet všechny možné vstupy (brute-force)
+- _**Weak collision resistant**_: Pro $x$ je složité najít $H(y)=H(x)$
+    - Pro jeden konkrétní vstup nelze najít jiný vstup, který vyprodukuje stejný hash
+- _**Strong collision resistance**_: Je složité najít jakékoliv $x,y$, takové, že $H(y)=H(x)$
+    - _Weak collision resistance_ se vztahuje na nějaký konkrétní vstup, kdežto _strong collision resistance_ se vztahuje na jakékoliv dva náhodné rozdílné vstupy
+        - Např. Když chceme ke konkrétnímu heslu &#34;_password123_&#34; najít jiný string, který bude mít ve výsledku stejný hash, jedná se o _weak collision_. Příklad pro _strong collision_ je třeba birthday paradox, který říká, že stačí pouze 23 náhodně vybraných lidí, abychom měli 50% šanci, že dva z nich budou mít narozeniny ve stejný den.
+- _**Strict avalanche criterion**_: Změna jednoho bitu na vstupu by měla v průměru změnit polovinu výstupních bitů. Jinak řečeno, malá změna na vstupu by měla způsobit velkou změnu na výstupu.
+- _**Fast**_: Rychlost výpočtu záleží na případu užití. Obecně ale výpočet hashe by měl být rychlý.
+
+
+#### Možnosti použití hash funkcí
+- **Integrity check**: Testování integrity zprávy (nebo souboru) tím, že porovnáme její skutečný hash s hashem, který jsme dostali. Dokážeme tím detekovat záměrné nebo nezáměrné chyby - např. útočník pozmění zprávu.
+- **Key derivation**: Hesla by neměla být ukládána v plaintextu, ale měla by být uložena jako &#34;hash and salt&#34;. _Salt_ je náhodná hodnota, která je přidána k heslu, než se zahashuje. Díky tomuto můžeme předejít _rainbow attack_, kde útočník má předpočítané hashe k jednotlivým heslům a uniklé hashe pouze vyhledává, nemusí nic počítat.
+    - Kdežto když budeme ke každému heslu připojovat náhodný řetezec, např. &#34;password123\&amp;\@\$&#34; - tomto případě to je **\&amp;\@\$**, útočník bude muset znova cracknout hesla.
+    - Pro klasické hashe (MD5, SHA1) musíme salt přidávat ručně, nicméně **bcrypt** má _solení_ hesel zabudován v sobě a automaticky ho přidává.
+        - Bcrypt: _Salt is the first 22 characters after the third $ in the hash:_
+        - _\$2y\$13\$\&lt;this is the salt, 22 chars\&gt;\&lt;this is the password hash\&gt;_
+- **Commitment scheme**: Viz. příklad z otázky 1 - remote coinflip
+    - Alice s Bobem si chtějí na dálku hodit mincí. Alice pošle Bobovi hash svého tipu + nějaký náhodný řetězec (protože by Bobovi stačilo pouze vyzkoušet 2 hodnoty), Bob flipne mincí, oznámí Alice svůj výsledek, Alice mu zašle plaintext+salt svého tipu, Bob to vypočítá a je zajištěno, že nikdo nemohl v průběhu změnit svůj tip.
+- **IDs** (non-cryptographic): verzovací systémy používají hash funkce, aby identifikovali jednotlivé soubory a commity. Podobně to funguje i v hash tabulkách.
+
+
+### Merkle-Damgard constrution of hash function
+:::warning
+:movie_camera: [Merkle Damgard and Sponge Constructions](https://www.youtube.com/watch?v=HY94szKZbd8)
+:::
+- Merkle-Damgard konstrukce je asi nejznámější konstrukce hashovacích funkcí
+- Používá se např. v MD5, SHA1 a SHA2
+- Message $M$ je rozdělena do bloků o fixní délce $M=m_0||m_1||\ldots||m_t$ a je použit vhodný _padding_
+    - Například budeme zprávu rozdělovat do bloků o délce 16 bitů a zpráva o délce 25 bitů bude rozdělena na $16b||9b+padding$
+- Jednotlivé bloky zprávy jsou _compressed_ jeden po druhém funkcí $f$, aby vyprodukovali $h_i$
+- $h_i$ je tzv. _chaining variable_ a je použita v kompresi dalšího bloku $m_{i+1}$
+    - Compression funkce $f$ využije $m_i$ a $h_{i-1}$, aby vyprodukovala $h_i$
+    - počáteční hodnota $h_0$ je fixní a je specifikována v rámci hash funkce.
+- ![](https://i.imgur.com/W92om8Q.png)
+
+### Sponge construction of hash functions: SHA-3 Keccak
+- SHA-3 (Secure Hash Algorithm) je standard, Keccak je název algoritmu.
+- Délka hashe: 224 bitů do 512 bitů
+- SHA-3 využívá Sponge a duplex konstrukce
+- Je designovaný pro hashování, stream encryption, MAC
+- SHA-3 pracuje s bloky o velikosti $w$ (běžně 64 bitů; _padding_ je použit, pokud je to potřeba). Uchovává si interní stav $5\times 5\times w$ jako pole, které se nazývá _sponge_.
+- SHA-3 má dvě hlavní fáze: V první jsou data _absorbed_ do _sponge_ a ve druhé je výsledek _squeezed_.
+
+![keccak](https://keccak.team/images/Sponge-150.png)
+
+
+### Password hashing functions
+**brypt** (1999) je hash funkce určena hashování hesel. Je založena na Blowfish block cipher. Má v sobě automaticky zahrnut salt, viz. výše. 
+- \$**2a**\$**12**\$R9h\/cIPz0gi.URNNX3kh2OPST9\/PgBkqquzi.Ss7KIUgO2t0jWMUW
+- **2a** - specifikuje verzi algoritmu
+- **12** - specifikuje _input cost_, tzn. počet iterací - čím víc, tím pomalejší je výpočet = zpomalení útočníka.
+**scrypt** (2009) je další hash funkce pro hashování hesel, navrhnuta tak, aby byla náročně vypočitatelná pomocí custom HW.
+
+![hash comparison](https://i.stack.imgur.com/uCpIj.png)
