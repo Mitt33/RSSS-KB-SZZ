@@ -575,7 +575,9 @@ Digitální podpis se používá k zajištění:
 * nepopiratelnosti zodpovědnosti autora podpisu
 
 ### Digitální podpis -  legislativa
-**Česká legislativa (zákon 227/2000 Sb.) definuje pojmy:**
+**Česká legislativa (zákon 227/2000 Sb.) definuje pojmy:** 
+
+(momentálně platným zákonem je ale 297/2016 Sb., který je transpozicí z důvodu přijetí nařízení EU č. 910/2014 (eIDAS))
 
 **Elektronický podpis**
 * &amp;#34;Elektronickým podpisem se rozumí údaje v elektronické podobě, které jsou připojené k datové zprávě nebo jsou s ní logicky spojené a které slouží jako metoda k jednoznačnému ověření identity podepsané osoby ve vztahu k datové zprávě“.
@@ -916,7 +918,7 @@ http://statnice.dqd.cz/mgr-szz:in-bit:11-bit
 ### (Identifikační systémy a správa identit.)
 
 
-(!! FYI, vypracovanim tejto podotazky si niesom vobec isty, mozno by sa to hodilo prekontrolovat. Aj ked vela veci je spomenutych uz v predoslej podotazke)
+(!! FYI, vypracovanim tejto podotazky si niesom vobec isty, mozno by sa to hodilo prekontrolovat. Aj ked vela veci je spomenutych uz v predoslej podotazke) ADD: taky si myslím - řekl bych že to je více mířené na IDM v praxi jako SAMl, OpenID, FreeIPA apod
 
 
 **Identifikace**: 
@@ -997,6 +999,56 @@ http://statnice.dqd.cz/mgr-szz:in-bit:11-bit
 * Kopírování nemusí být triviální, ale není obtížné
 * Spolehlivost: nemohou být zapomenuty
 * Nová ochranná opatření mají za následek nové druhy útoků – bezpečnostní „klasika“
+
+
+## Identifikační systémy a správa identit (IdM/IAM)
+
+
+
+## Definice identity
+- **Identita** Jakákoli podmnožina atributů spojených s daným jedincem, která jednoznačně.
+identifikuje daného jedince v rámci daného souboru, existuje více identit jednotlivce na základě různých uživatelských prostředí. Dílčí identita je spojena s daným kontextem, rolí nebo omezenou množinou jednotlivců
+- **Digitální identita** umožňuje uživateli prokazovat svou totožnost při přístupu k digitálním službám a systémům.
+
+## Co je Identity Management (IdM) a Identity and Access Management (IAM)
+- **Identity Management (IdM)** je centralizovaná správa digitálních identit v IT systémech. Zajišťuje, že správné osoby mají ve správný čas přístup ke správným zdrojům, s plnou evidencí a podle bezpečnostních politik.
+    - Zahrnuje životní cyklus identity: vytvoření, změny, přiřazení rolí, deaktivace a mazání.
+    - Automatizuje procesy přiřazování a odebírání oprávnění.
+- **Identity and Access Management (IAM)** rozšiřuje IdM o správu přístupových práv (autorizaci), tedy řízení, kdo a jak může využívat jaké zdroje v síti organizace
+    - IAM zahrnuje autentizaci (ověření identity), autorizaci (přiřazení práv), audit, monitoring, Single Sign-On (SSO) a vícefaktorovou autentizaci.
+    - IAM je klíčový pro bezpečnost a efektivitu organizace, protože kompromitovaná identita je častým vstupním bodem útoků
+
+## Praktické systémy a standardy
+
+### SAML (Security Assertion Markup Language)
+- **SAML** je otevřený standard (XML), který umožňuje bezpečné předávání informací o identitě mezi poskytovatelem identity (IdP) a poskytovatelem služby (SP)
+- Umožňuje **Single Sign-On (SSO)**: uživatel se přihlásí jednou a získá přístup k více aplikacím bez opakovaného zadávání údajů.
+- Typický scénář:  
+    1. Uživatel se pokusí přihlásit k aplikaci (SP).
+    2. Aplikace přesměruje uživatele na IdP.
+    3. IdP ověří uživatele a vydá SAML assertion (token).
+    4. SP ověří token a udělí přístup.
+- SAML je široce používán ve velkých organizacích a cloudu pro federovanou identitu.
+
+### FreeIPA
+- **FreeIPA** je open-source řešení pro správu identit v Linuxových prostředích.
+- Kombinuje LDAP adresář, Kerberos KDC, DNS server a certifikační autoritu.
+- Umožňuje centralizovanou správu uživatelů, skupin, politik a autentizace napříč systémy.
+- FreeIPA podporuje federaci identit (např. napojení na SAML IdP) a integraci s Active Directory.
+
+### Kerberos
+- **Kerberos** je síťový autentizační protokol využívající sdílené tajné klíče a třetí stranu (Key Distribution Center – KDC).
+- Poskytuje **Single Sign-On (SSO)** v rámci tzv. Kerberos realm: uživatel se autentizuje jednou a může bezpečně přistupovat ke všem službám v doméně bez opakovaného zadávání hesla.
+- Kerberos používá lístky (tickets), které mají omezenou platnost a minimalizují riziko odposlechu hesel.
+- Je základem autentizace v mnoha podnikových systémech (např. Microsoft Active Directory, FreeIPA).
+
+---
+
+## Shrnutí
+- **Identity Management (IdM)** a **Identity and Access Management (IAM)** jsou základní nástroje pro bezpečnou a efektivní správu digitálních identit a přístupů v organizacích.
+- Praktické systémy jako **SAML**, **FreeIPA** a **Kerberos** umožňují centralizovanou správu, jednotné přihlašování (SSO) a bezpečné ověřování uživatelů napříč heterogenními systémy.
+- Moderní správa identit je klíčová pro bezpečnost, auditovatelnost a efektivitu v digitálním prostředí.
+
 
 ![](https://i.imgur.com/7fwYKrC.png)
 

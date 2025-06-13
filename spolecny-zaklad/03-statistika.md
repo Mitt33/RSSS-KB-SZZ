@@ -1149,6 +1149,122 @@ Chyba 2. typu nastane, když **neodmítneme** $H_0$ navzdory tomu, že ve skute�
 [color=green]
 
 
+## Chybí hodně teorie: Testování hypotéz na jednom vzorku, dvou vzorcích, více než dvou vzorcích (včetně jednovýběrových, dvouvýběrových a párových t-testů, ANOVA a post-hoc testů), testů dobré shody
+
+Detailně je který test použít v jaké situaci zde, ale to snad není nutné znát zpaměti: 
+&gt; ![](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg1QNaxCtZVVpRX-no9vGyg5Kg-UgyEDhzKNpQ5yLTX8jntEtsgyHYJtAoahpAOgOydP0WgIQzKAbTLmc4-JHPXY-XSfJR4Kmyhut_tg5kFhJbklctHUIT0qZhVOk3yzo9HMt-piB78dJSzmi_Oita_V1Sw5ssLJEGS4jBG5oLdvqoL6UBiW1IhVxb2/s1541/Mapa.drawio.png)
+
+## Testování hypotéz na jednom, dvou a více vzorcích
+
+### **1. Testování na jednom vzorku**
+#### **a) Jednovýběrový t-test**
+- **Účel:** Ověřit, zda se střední hodnota (μ) vzorku liší od známé hodnoty (μ₀).
+- **Hypotézy:**
+  - H₀: μ = μ₀  
+  - H₁: μ ≠ μ₀ (oboustranný) / μ > μ₀ nebo μ < μ₀ (jednostranný)
+- **Testová statistika:**  
+  $$ t = \frac{\bar{X} - \mu_0}{s / \sqrt{n}} $$  
+  Kde:  
+  - $\bar{X}$ = výběrový průměr  
+  - $s$ = výběrová směrodatná odchylka  
+  - $n$ = velikost vzorku  
+- **Předpoklady:**  
+  - Data jsou normálně rozdělená (nebo $n$ je velké).  
+- **Příklad:** Ověření, zda průměrná výška studentů je 175 cm.
+
+#### **b) Jednovýběrový z-test**
+- **Účel:** Stejný jako t-test, ale používá se, pokud je známá směrodatná odchylka populace (σ).  
+- **Testová statistika:**  
+  $$ z = \frac{\bar{X} - \mu_0}{\sigma / \sqrt{n}} $$  
+- **Použití:** Vzorek je velký nebo σ je známá.
+
+---
+
+### **2. Testování na dvou vzorcích**
+#### **a) Dvouvýběrový t-test (nezávislé vzorky)**
+- **Účel:** Porovnat střední hodnoty dvou nezávislých skupin.  
+- **Hypotézy:**  
+  - H₀: μ₁ = μ₂  
+  - H₁: μ₁ ≠ μ₂ / μ₁ > μ₂ / μ₁ < μ₂  
+- **Testová statistika:**  
+  $$ t = \frac{\bar{X}_1 - \bar{X}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}} $$  
+  (pro nerovné rozptyly – Welchův test)  
+- **Předpoklady:**  
+  - Nezávislost vzorků.  
+  - Normalita dat (nebo velké $n$).  
+  - Homogenita rozptylů (pro klasický t-test).  
+- **Příklad:** Porovnání průměrné mzdy mužů a žen.
+
+#### **b) Párový t-test**
+- **Účel:** Porovnat střední hodnoty dvou závislých skupin (např. měření před a po zákroku).  
+- **Hypotézy:**  
+  - H₀: μₐ = μᵦ  
+  - H₁: μₐ ≠ μᵦ / μₐ > μᵦ / μₐ < μᵦ  
+- **Testová statistika:**  
+  $$ t = \frac{\bar{d}}{s_d / \sqrt{n}} $$  
+  Kde:  
+  - $\bar{d}$ = průměrný rozdíl mezi páry  
+  - $s_d$ = směrodatná odchylka rozdílů  
+- **Příklad:** Porovnání krevního tlaku pacientů před a po léčbě.
+
+---
+
+### **3. Testování na více než dvou vzorcích**
+#### **a) ANOVA (Analysis of Variance)**
+- **Účel:** Ověřit, zda existují rozdíly mezi středními hodnotami tří a více skupin.  
+- **Hypotézy:**  
+  - H₀: μ₁ = μ₂ = μ₃ = ...  
+  - H₁: Alespoň jedna střední hodnota se liší.  
+- **Testová statistika (F-statistika):**  
+  $$ F = \frac{\text{Meziskupinový rozptyl}}{\text{Vnitroskupinový rozptyl}} $$  
+- **Předpoklady:**  
+  - Normalita dat.  
+  - Homogenita rozptylů (Leveneův test).  
+  - Nezávislost pozorování.  
+- **Příklad:** Porovnání výkonnosti tří různých léků.
+
+#### **b) Post-hoc testy**
+- **Účel:** Určit, které konkrétní skupiny se liší po zamítnutí H₀ v ANOVA.  
+- **Metody:**  
+  - **Tukeyho HSD:** Pro rovnoměrné velikosti skupin.  
+  - **Bonferroniho korekce:** Pro více porovnání (konzervativní).  
+  - **Scheffého test:** Pro komplexní porovnání.  
+- **Příklad:** Zjištění, zda se lék A liší od léku B a C.
+
+---
+
+### **4. Testy dobré shody (Goodness-of-fit)**
+#### **a) Chi-kvadrát test dobré shody**
+- **Účel:** Ověřit, zda pozorované četnosti odpovídají očekávanému rozdělení.  
+- **Hypotézy:**  
+  - H₀: Pozorované četnosti odpovídají teoretickému rozdělení.  
+  - H₁: Pozorované četnosti se liší.  
+- **Testová statistika:**  
+  $$ \chi^2 = \sum \frac{(O_i - E_i)^2}{E_i} $$  
+  Kde:  
+  - $O_i$ = pozorované četnosti  
+  - $E_i$ = očekávané četnosti  
+- **Příklad:** Ověření, zda je rozložení krevních skupin v populaci 40% A, 30% B, 20% AB, 10% 0.
+
+---
+
+### **Shrnutí testů**
+| **Test**                | **Účel**                                  | **Typ dat**           |  
+|-------------------------|-------------------------------------------|-----------------------|  
+| Jednovýběrový t-test    | Porovnání průměru se známou hodnotou      | Spojitá               |  
+| Dvouvýběrový t-test     | Porovnání průměrů dvou nezávislých skupin | Spojitá, nezávislá    |  
+| Párový t-test           | Porovnání průměrů dvou závislých skupin   | Spojitá, závislá      |  
+| ANOVA                   | Porovnání průměrů tří a více skupin       | Spojitá               |  
+| Chi-kvadrát test        | Ověření shody četností s rozdělením       | Kategorická           |  
+
+---
+
+### **Poznámky**
+- **Hladina významnosti (α):** Obvykle 0,05 nebo 0,01.  
+- **p-hodnota:** Pokud p < α → zamítáme H₀.  
+- **Korekce pro násobné testování:** Např. Bonferroniho korekce snižuje riziko chyby I. druhu.  
+
+
 ### Parametrické testy
 #### ANOVA
 
