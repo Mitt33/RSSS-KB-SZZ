@@ -1044,10 +1044,6 @@ identifikuje daného jedince v rámci daného souboru, existuje více identit je
 
 ---
 
-## Shrnutí
-- **Identity Management (IdM)** a **Identity and Access Management (IAM)** jsou základní nástroje pro bezpečnou a efektivní správu digitálních identit a přístupů v organizacích.
-- Praktické systémy jako **SAML**, **FreeIPA** a **Kerberos** umožňují centralizovanou správu, jednotné přihlašování (SSO) a bezpečné ověřování uživatelů napříč heterogenními systémy.
-- Moderní správa identit je klíčová pro bezpečnost, auditovatelnost a efektivitu v digitálním prostředí.
 
 
 ![](https://i.imgur.com/7fwYKrC.png)
